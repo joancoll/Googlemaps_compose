@@ -41,6 +41,7 @@
     <string name="jewishGirona">Girona té un barri jueu</string>
     <string name="jewishBesalu">Besalú té un barri jueur</string>
     <string name="clickedHere">Has clicat aquí</string>
+    <string name="userPlace">Lloc usuari</string>
     <string name="currentLocation">Ets aquí</string>
     <string name="latitude">Latitud:</string>
     <string name="longitude">Longitud:</string>

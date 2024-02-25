@@ -2,7 +2,6 @@ package cat.dam.andy.googlemaps_compose
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import cat.dam.andy.googlemaps_compose.ui.theme.Googlemaps_composeTheme
 
 
@@ -43,12 +41,8 @@ class MainActivity : ComponentActivity() {
                                     title = getString(R.string.PermLocation)
                                 )
                                 .checkAndRequestPermission { isGranted ->
-                                    if (isGranted) {
-                                        mapViewModel.permissionGranted = true
-                                        mapViewModel.updateCameraPosition()
-                                    } else {
-                                        mapViewModel.permissionGranted = false
-                                    }
+                                    mapViewModel.permissionGranted = isGranted
+                                    mapViewModel.updateCameraPosition()
                                 }
                             }
                     )
@@ -62,7 +56,7 @@ class MainActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Green),
+                .background(MaterialTheme.colorScheme.background),
         ) {
             MenuScreen(context,mapViewModel,onLocationClick)
             MapScreen(context, mapViewModel, permissionManager )
@@ -73,12 +67,13 @@ class MainActivity : ComponentActivity() {
         companion object {
             val UPDATE_INTERVAL: Long = 10000 /* 10 segons */
             val FASTEST_INTERVAL: Long = 5000 /* 5 segons */
-            val DEFAULT_LAT = 41.985857
-            val DEFAULT_LONG = 2.8235721 //Ubicació per defecte (Girona)
+            val DEFAULT_LAT = 0.0
+            val DEFAULT_LONG = 0.0 //Ubicació per defecte
             val MAP_ZOOM = 10f //ampliació de zoom al marcador (més gran, més zoom)
             val MAP_LOCATION_ZOOM = 17f //ampliació de zoom al marcador ubicació
         }
     }
+
 }
 
 

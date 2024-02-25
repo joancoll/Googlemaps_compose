@@ -8,6 +8,8 @@ import androidx.compose.runtime.setValue
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LAT
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LONG
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_LOCATION_ZOOM
+import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_ZOOM
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -17,20 +19,17 @@ class MapViewModel : ViewModel() {
     private var _deviceLatLng by mutableStateOf(LatLng(DEFAULT_LAT, DEFAULT_LONG))
     private var _cameraPositionState by mutableStateOf<CameraPositionState>(
         CameraPositionState(
-            CameraPosition.fromLatLngZoom(_deviceLatLng, MAP_LOCATION_ZOOM)
+            CameraPosition.fromLatLngZoom(_deviceLatLng, MAP_ZOOM)
         )
     )
     var permissionGranted by mutableStateOf(false)
     var firstLocationFound by mutableStateOf(false)
+    var places by mutableStateOf<List<Place>>(emptyList())
 
-    fun updateCameraPosition() {
-        val lastKnownLocation = getLastKnownLocation()
-        if (lastKnownLocation != null) {
-
-            val newLatLng = LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
-            val newCameraPosition = CameraPosition.fromLatLngZoom(newLatLng, MAP_LOCATION_ZOOM)
-
-            // Actualitza directament l'estat de la posició de la càmera
+    fun updateCameraPosition(location:Location?=_lastKnownLocation, zoom:Float=MAP_LOCATION_ZOOM) {
+        if (location != null) {
+            val newLatLng = LatLng(location.latitude, location.longitude)
+            val newCameraPosition = CameraPosition.fromLatLngZoom(newLatLng,zoom)
             setCameraPositionState(CameraPositionState(newCameraPosition))
         }
     }
@@ -78,5 +77,10 @@ class MapViewModel : ViewModel() {
         }
     }
 
+    fun addPlace(newPlace: Place) {
+        places = places.toMutableList().apply {
+            add(newPlace)
+        }
+    }
 
 }

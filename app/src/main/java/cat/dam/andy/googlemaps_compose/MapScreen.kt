@@ -1,8 +1,8 @@
 package cat.dam.andy.googlemaps_compose
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.location.Location
 import android.os.Looper
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -13,14 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.viewModelFactory
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LAT
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LONG
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.FASTEST_INTERVAL
+import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_ZOOM
 import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.UPDATE_INTERVAL
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -28,13 +27,15 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import java.util.Locale
 
 
 @Composable
@@ -56,7 +57,6 @@ fun MapScreen(context: Context, mapViewModel: MapViewModel, permissionManager: P
                             DEFAULT_LONG
                         )
                     ) {
-                        mapViewModel.updateCameraPosition()
                         mapViewModel.firstLocationFound = true
                     }
 ////                     Però podriem optar per fer zoom sempre o en determinades condicions
@@ -95,6 +95,13 @@ fun MapScreen(context: Context, mapViewModel: MapViewModel, permissionManager: P
         Toast.makeText(context, "Location updates stopped", Toast.LENGTH_SHORT).show()
     }
 
+    LaunchedEffect(mapViewModel.places) {
+        mapViewModel.places.forEach {
+            println( it.longitude)
+                    true
+        }
+    }
+
     // DisposeEffect que s'executarà quan es destrueixi el composable
     DisposableEffect(Unit) {
         // Funció que s'executarà quan es crea el composable
@@ -124,40 +131,79 @@ fun InitMap(context: Context, mapViewModel: MapViewModel, permissionManager: Per
             .fillMaxWidth()
             .fillMaxHeight(),
         cameraPositionState = mapViewModel.getCameraPositionState(),
-        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+        googleMapOptionsFactory = {
+            GoogleMapOptions()
+        },
+        properties = MapProperties(isMyLocationEnabled = mapViewModel.permissionGranted),
+        uiSettings = MapUiSettings(
+            zoomControlsEnabled = true,
+            zoomGesturesEnabled = true,
+            compassEnabled = true,
+            mapToolbarEnabled = true
+        ),
+        onMapLoaded = {
+            // Quan el mapa estigui carregat hi posem marcadors inicials
+            initMapMarkers(context, mapViewModel)
+            // actualitzem la posició de la càmera a on es troba el dispositiu
+            mapViewModel.updateCameraPosition(mapViewModel.getLastKnownLocation(), MAP_ZOOM)
+        },
+        onMapClick = { latLng ->
+            // Quan es fa clic al mapa, afegim un marcador a la posició
+            val title = context.getString(R.string.clickedHere) + " (LAT:" + String.format(
+                Locale.getDefault(),
+                "%.4f",
+                latLng.latitude
+            ) + " LONG:" + String.format(
+                Locale.getDefault(),
+                "%.4f",
+                latLng.longitude
+            ) + ")"
+            val place = Place(latLng.latitude, latLng.longitude,title,context.getString(R.string.userPlace),BitmapDescriptorFactory.fromResource(R.drawable.custom_marker))
+            mapViewModel.addPlace(place)
+            Toast.makeText(context, "Clicked at $latLng", Toast.LENGTH_SHORT).show()
+        }
     )
-    { //només es mostrarà marcador si tenim permisos i hem trobat la primera localització
+    {  //Contingut del mapa
+        //només es mostrarà marcador si tenim permisos i hem trobat la primera localització
         if (mapViewModel.permissionGranted && mapViewModel.firstLocationFound) {
+            val myPosition = mapViewModel.getLastKnownLocation()
             Marker(
-                state = MarkerState(position = mapViewModel.getlastKnownLocationLatLng()),
+                state = MarkerState(position = getLatLng(myPosition)),
                 title = context.getString(R.string.currentLocation),
-                snippet = context.getString(R.string.currentLocation)
+                snippet = context.getString(R.string.currentLocation),
+                onClick = {
+                    mapViewModel.updateCameraPosition(myPosition)
+                    false// si posessim a true no es veuria la informació del marcador
+                }
             )
         }
-        AddMarkers(context)
+        Markers(context, mapViewModel)
     }
 }
 
+fun getLatLng(myPosition: Location?): LatLng {
+    if (myPosition == null) {
+        return LatLng(DEFAULT_LAT, DEFAULT_LONG)
+    } else {
+        return LatLng(myPosition.latitude, myPosition.longitude)
+    }
+}
+
+
 @Composable
-fun AddMarkers(context: Context) {
-    Marker(
-        state = MarkerState(position = LatLng(41.9802474, 2.78356)),
-        title = "Girona",
-        snippet = context.getString(R.string.jewishGirona),
-        icon =
-        BitmapDescriptorFactory.defaultMarker(
-            BitmapDescriptorFactory.HUE_CYAN
+fun Markers(context: Context, mapViewModel: MapViewModel) {
+    mapViewModel.places.forEach {place->
+        Marker(
+            state = MarkerState(position = LatLng(place.latitude, place.longitude)),
+            title = place.title,
+            snippet = place.snippet,
+            icon = place.icon,
+            onClick = { marker ->
+                //viewModel.clickedOnPlace(marker.title)
+                false
+            },
         )
-    )
-    Marker(
-        state = MarkerState(position = LatLng(42.1998706, 2.6890259)),
-        title = "Besalú",
-        snippet = context.getString(R.string.jewishBesalu),
-        icon =
-        BitmapDescriptorFactory.defaultMarker(
-            BitmapDescriptorFactory.HUE_CYAN
-        )
-    )
+    }
 }
 
 fun askPermission(
@@ -178,6 +224,7 @@ fun askPermission(
 
 
 fun getLocation(
+    //permet localitzar l'usuari un cop, sense actualitzacions
     context: Context,
     mapViewModel: MapViewModel,
     fusedLocationProviderClient: FusedLocationProviderClient,
@@ -199,13 +246,33 @@ fun getLocation(
                         // Set the map's camera position to the current location of the device.
                         val lastKnownLocation = task.result
                         mapViewModel.setLastKnownLocation(lastKnownLocation)
-                        mapViewModel.updateCameraPosition()
                     }
                 }
             } else {
                 mapViewModel.permissionGranted = false
             }
         }
+}
+
+fun initMapMarkers(context: Context, mapViewModel: MapViewModel) {
+    // crea els marcadors inicials utilitzant el ViewModel
+    val newPlaces = listOf(
+        Place(
+            latitude = 41.9849262,
+            longitude = 2.8249914,
+            title = "Girona",
+            snippet = context.getString(R.string.jewishGirona),
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+        ),
+        Place(
+            latitude = 42.199063,
+            longitude = 2.6998652,
+            title = "Besalú",
+            snippet = context.getString(R.string.jewishBesalu),
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+        )
+    )
+    mapViewModel.places = newPlaces
 }
 
 private fun startLocationUpdates(
@@ -247,7 +314,6 @@ private fun startLocationUpdates(
                         // Set the map's camera position to the current location of the device.
                         val lastKnownLocation = task.result
                         mapViewModel.setLastKnownLocation(lastKnownLocation)
-                        mapViewModel.updateCameraPosition()
                     }
                 }
             } else {
