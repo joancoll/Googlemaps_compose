@@ -292,8 +292,10 @@ private fun startLocationUpdates(
                 { task ->
                     if (task.isSuccessful) {
                         // Set the map's camera position to the current location of the device.
-                        val lastKnownLocation = task.result
-                        mapViewModel.setLastKnownLocation(lastKnownLocation)
+                        if (task.result!=null) {
+                            val lastKnownLocation = task.result
+                            mapViewModel.setLastKnownLocation(lastKnownLocation)
+                        }
                     }
                 }
             } else {
