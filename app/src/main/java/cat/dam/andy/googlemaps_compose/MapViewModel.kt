@@ -12,6 +12,7 @@ import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.CameraPositionState
 
 class MapViewModel : ViewModel() {
@@ -25,11 +26,28 @@ class MapViewModel : ViewModel() {
     var permissionGranted by mutableStateOf(false)
     var firstLocationFound by mutableStateOf(false)
     var places by mutableStateOf<List<Place>>(emptyList())
+    var selectedMarker by mutableStateOf<Marker?>(null)
+    var shouldShowMarkerMenu by mutableStateOf(false)
+    var newMarker by mutableStateOf<LatLng?>(null)
 
-    fun updateCameraPosition(location:Location?=_lastKnownLocation, zoom:Float=MAP_LOCATION_ZOOM) {
+    fun hideMarkerMenu() {
+        shouldShowMarkerMenu = false
+        selectedMarker = null
+    }
+
+    fun showMarkerMenu(marker: Marker) {
+        shouldShowMarkerMenu = true
+        selectedMarker = marker
+    }
+
+
+    fun updateCameraPosition(
+        location: Location? = _lastKnownLocation,
+        zoom: Float = MAP_LOCATION_ZOOM
+    ) {
         if (location != null) {
             val newLatLng = LatLng(location.latitude, location.longitude)
-            val newCameraPosition = CameraPosition.fromLatLngZoom(newLatLng,zoom)
+            val newCameraPosition = CameraPosition.fromLatLngZoom(newLatLng, zoom)
             setCameraPositionState(CameraPositionState(newCameraPosition))
         }
     }
@@ -53,8 +71,7 @@ class MapViewModel : ViewModel() {
     fun getlastKnownLocationLatLng(): LatLng {
         if (_lastKnownLocation == null) {
             return LatLng(DEFAULT_LAT, DEFAULT_LONG)
-        }
-        else {
+        } else {
             return LatLng(_lastKnownLocation!!.latitude, _lastKnownLocation!!.longitude)
         }
     }
@@ -62,8 +79,7 @@ class MapViewModel : ViewModel() {
     fun getLatitude(): String {
         if (_lastKnownLocation == null) {
             return "-  -"
-        }
-        else {
+        } else {
             return String.format("%.4f", _lastKnownLocation?.latitude)
         }
     }
@@ -71,8 +87,7 @@ class MapViewModel : ViewModel() {
     fun getLongitude(): String {
         if (_lastKnownLocation == null) {
             return "-  -"
-        }
-        else {
+        } else {
             return String.format("%.4f", _lastKnownLocation?.longitude)
         }
     }
@@ -80,6 +95,19 @@ class MapViewModel : ViewModel() {
     fun addPlace(newPlace: Place) {
         places = places.toMutableList().apply {
             add(newPlace)
+        }
+    }
+    fun removePlace(placeToRemove: Place) {
+        places = places.filter { it != placeToRemove }
+    }
+
+    fun updatePlace(place: Place, editedPlace: Place) {
+        places = places.map { existingPlace ->
+            if (existingPlace == place) {
+                editedPlace
+            } else {
+                existingPlace
+            }
         }
     }
 

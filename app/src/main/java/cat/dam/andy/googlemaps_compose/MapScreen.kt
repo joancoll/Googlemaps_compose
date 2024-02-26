@@ -143,24 +143,14 @@ fun InitMap(context: Context, mapViewModel: MapViewModel, permissionManager: Per
         ),
         onMapLoaded = {
             // Quan el mapa estigui carregat hi posem marcadors inicials
-            initMapMarkers(context, mapViewModel)
+            initMapPlaces(context, mapViewModel)
             // actualitzem la posició de la càmera a on es troba el dispositiu
             mapViewModel.updateCameraPosition(mapViewModel.getLastKnownLocation(), MAP_ZOOM)
         },
         onMapClick = { latLng ->
-            // Quan es fa clic al mapa, afegim un marcador a la posició
-            val title = context.getString(R.string.clickedHere) + " (LAT:" + String.format(
-                Locale.getDefault(),
-                "%.4f",
-                latLng.latitude
-            ) + " LONG:" + String.format(
-                Locale.getDefault(),
-                "%.4f",
-                latLng.longitude
-            ) + ")"
-            val place = Place(latLng.latitude, latLng.longitude,title,context.getString(R.string.userPlace),BitmapDescriptorFactory.fromResource(R.drawable.custom_marker))
-            mapViewModel.addPlace(place)
-            Toast.makeText(context, "Clicked at $latLng", Toast.LENGTH_SHORT).show()
+            mapViewModel.hideMarkerMenu()
+            // Quan es fa clic al mapa, notifiquem de la posició
+            mapViewModel.newMarker = latLng
         }
     )
     {  //Contingut del mapa
@@ -172,6 +162,7 @@ fun InitMap(context: Context, mapViewModel: MapViewModel, permissionManager: Per
                 title = context.getString(R.string.currentLocation),
                 snippet = context.getString(R.string.currentLocation),
                 onClick = {
+                    mapViewModel.hideMarkerMenu()
                     mapViewModel.updateCameraPosition(myPosition)
                     false// si posessim a true no es veuria la informació del marcador
                 }
@@ -199,7 +190,7 @@ fun Markers(context: Context, mapViewModel: MapViewModel) {
             snippet = place.snippet,
             icon = place.icon,
             onClick = { marker ->
-                //viewModel.clickedOnPlace(marker.title)
+                mapViewModel.showMarkerMenu(marker)
                 false
             },
         )
@@ -254,7 +245,7 @@ fun getLocation(
         }
 }
 
-fun initMapMarkers(context: Context, mapViewModel: MapViewModel) {
+fun initMapPlaces(context: Context, mapViewModel: MapViewModel) {
     // crea els marcadors inicials utilitzant el ViewModel
     val newPlaces = listOf(
         Place(
@@ -282,9 +273,6 @@ private fun startLocationUpdates(
     locationCallback: LocationCallback,
     permissionManager: PermissionManager
 ) {
-    // mentre cerca la localització no es permet clicar de nou el botó
-//        btnFindMe?.setText(R.string.waitingLocation)
-//        btnFindMe?.isEnabled = false
     //Configura l'actualització de les peticions d'ubicació
     val locationRequest = LocationRequest.Builder(UPDATE_INTERVAL)
     //Aquest mètode estableix la velocitat en mil·lisegons en què l'aplicació prefereix rebre actualitzacions d'ubicació. Tingueu en compte que les actualitzacions d'ubicació poden ser una mica més ràpides o més lentes que aquesta velocitat per optimitzar l'ús de la bateria, o pot ser que no hi hagi actualitzacions (si el dispositiu no té connectivitat, per exemple).

@@ -42,10 +42,24 @@
     <string name="jewishBesalu">Besalú té un barri jueur</string>
     <string name="clickedHere">Has clicat aquí</string>
     <string name="userPlace">Lloc usuari</string>
-    <string name="currentLocation">Ets aquí</string>
+    <string name="currentLocation">Posició actual</string>
+    <string name="currentLocationSnippet">Ets aquí</string>
     <string name="latitude">Latitud:</string>
     <string name="longitude">Longitud:</string>
     <string name="PermLocationDenied">Permís d\'ubicació denegat</string>
     <string name="PermLocationNeeded">Es necessita el permís d\'ubicació per localitzar la vostra posició</string>
     <string name="PermLocation">Permís d\'ubicació</string>
+    <string name="delete_marker">Suprimeix</string>
+    <string name="edit_marker">Edita</string>
+    <string name="exit">Surt</string>
+    <string name="delete_place">Esborrar lloc</string>
+    <string name="delete_confirmation">Segur que vols esborrar el lloc anomenat: </string>
+    <string name="delete">Esborra</string>
+    <string name="cancel">Cancel·la</string>
+    <string name="edit_place">Editar lloc</string>
+    <string name="title">Nom del lloc</string>
+    <string name="snippet">Descripció del lloc</string>
+    <string name="save_changes">Desa canvis</string>
+    <string name="add_place">Afegir lloc</string>
+    <string name="errorTitleValidation">El títol no és vàlid</string>
 </resources>
