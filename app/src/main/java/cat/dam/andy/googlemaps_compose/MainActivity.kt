@@ -228,8 +228,6 @@ class MainActivity : ComponentActivity() {
                                                 editedSnippet,
                                                 place.icon
                                             )
-                                            editedPlace.title = editedTitle
-                                            editedPlace.snippet = editedSnippet
                                             mapViewModel.updatePlace(place, editedPlace)
                                             mapViewModel.hideMarkerMenu()
                                             // Close the dialog
@@ -250,7 +248,7 @@ class MainActivity : ComponentActivity() {
                 confirmButton = {
                     Button(
                         onClick = {
-                            if (title.isNotEmpty()) {
+                            if (editedTitle.isNotEmpty()) {
                                 val editedPlace = Place(
                                     place.latitude,
                                     place.longitude,
@@ -258,8 +256,6 @@ class MainActivity : ComponentActivity() {
                                     editedSnippet,
                                     place.icon
                                 )
-                                editedPlace.title = editedTitle
-                                editedPlace.snippet = editedSnippet
                                 mapViewModel.updatePlace(place, editedPlace)
                                 mapViewModel.hideMarkerMenu()
                                 // Close the dialog
