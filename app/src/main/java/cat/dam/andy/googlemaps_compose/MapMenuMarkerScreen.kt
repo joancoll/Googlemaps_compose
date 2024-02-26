@@ -24,7 +24,7 @@ fun MapMenuMarkerScreen(context: Context, mapViewModel: MapViewModel, onMarkerDe
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Yellow)
+                .background(Color.LightGray)
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {

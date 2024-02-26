@@ -35,7 +35,6 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import java.util.Locale
 
 
 @Composable
@@ -93,13 +92,6 @@ fun MapScreen(context: Context, mapViewModel: MapViewModel, permissionManager: P
         } else
             stopLocationUpdates(fusedLocationProviderClient, locationCallback)
         Toast.makeText(context, "Location updates stopped", Toast.LENGTH_SHORT).show()
-    }
-
-    LaunchedEffect(mapViewModel.places) {
-        mapViewModel.places.forEach {
-            println( it.longitude)
-                    true
-        }
     }
 
     // DisposeEffect que s'executarà quan es destrueixi el composable
@@ -160,15 +152,15 @@ fun InitMap(context: Context, mapViewModel: MapViewModel, permissionManager: Per
             Marker(
                 state = MarkerState(position = getLatLng(myPosition)),
                 title = context.getString(R.string.currentLocation),
-                snippet = context.getString(R.string.currentLocation),
+                snippet = context.getString(R.string.currentLocationSnippet),
                 onClick = {
                     mapViewModel.hideMarkerMenu()
-                    mapViewModel.updateCameraPosition(myPosition)
+//                    mapViewModel.updateCameraPosition(myPosition)
                     false// si posessim a true no es veuria la informació del marcador
                 }
             )
         }
-        Markers(context, mapViewModel)
+        Markers(mapViewModel)
     }
 }
 
@@ -182,7 +174,7 @@ fun getLatLng(myPosition: Location?): LatLng {
 
 
 @Composable
-fun Markers(context: Context, mapViewModel: MapViewModel) {
+fun Markers(mapViewModel: MapViewModel) {
     mapViewModel.places.forEach {place->
         Marker(
             state = MarkerState(position = LatLng(place.latitude, place.longitude)),
@@ -311,7 +303,7 @@ private fun startLocationUpdates(
 
     fusedLocationProviderClient.requestLocationUpdates(
         locationRequest.build(),
-        locationCallback as LocationCallback,
+        locationCallback,
         Looper.getMainLooper()
     )
 }

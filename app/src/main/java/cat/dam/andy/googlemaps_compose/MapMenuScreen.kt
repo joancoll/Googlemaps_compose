@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MapMenuScreen(context: Context, mapViewModel: MapViewModel, onLocationClick: () -> Unit) {
-    Column(modifier = Modifier.background(Color.Cyan)) {
+    Column(modifier = Modifier.background(Color.White)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -50,6 +50,7 @@ sealed class DialogState {
 }
 
 private var dialogState by mutableStateOf<DialogState>(DialogState.None)
+
 class MainActivity : ComponentActivity() {
     private lateinit var permissionManager: PermissionManager
     private val mapViewModel by viewModels<MapViewModel>()
@@ -111,25 +112,27 @@ class MainActivity : ComponentActivity() {
             bottomBar = {
                 if (mapViewModel.shouldShowMarkerMenu) {
                     MapMenuMarkerScreen(context, mapViewModel, onMarkerDelete = {
-                        val selectedMarker= mapViewModel.selectedMarker
+                        val selectedMarker = mapViewModel.selectedMarker
                         val places = mapViewModel.places
-                        if (selectedMarker!=null) {
+                        if (selectedMarker != null) {
                             val selectedLatitude = selectedMarker.position.latitude
                             val selectedLongitude = selectedMarker.position.longitude
-                            val selectedPlace:Place? = places.find { it.latitude == selectedLatitude && it.longitude == selectedLongitude }
-                            if (selectedPlace !=null) {
+                            val selectedPlace: Place? =
+                                places.find { it.latitude == selectedLatitude && it.longitude == selectedLongitude }
+                            if (selectedPlace != null) {
                                 dialogState = DialogState.Delete(selectedPlace)
                             }
                         }
                     },
                         onMarkerEdit = {
-                            val selectedMarker= mapViewModel.selectedMarker
+                            val selectedMarker = mapViewModel.selectedMarker
                             val places = mapViewModel.places
-                            if (selectedMarker!=null) {
+                            if (selectedMarker != null) {
                                 val selectedLatitude = selectedMarker.position.latitude
                                 val selectedLongitude = selectedMarker.position.longitude
-                                val selectedPlace:Place? = places.find { it.latitude == selectedLatitude && it.longitude == selectedLongitude }
-                                if (selectedPlace !=null) {
+                                val selectedPlace: Place? =
+                                    places.find { it.latitude == selectedLatitude && it.longitude == selectedLongitude }
+                                if (selectedPlace != null) {
                                     dialogState = DialogState.Edit(selectedPlace)
                                 }
                             }
@@ -137,7 +140,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         )
-        if (mapViewModel.newMarker!=null) {
+        if (mapViewModel.newMarker != null) {
             dialogState = DialogState.Add(mapViewModel.newMarker!!)
         }
     }
@@ -217,7 +220,7 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onDone = {
-                                        if (editedTitle.length>=1) {
+                                        if (editedTitle.isNotEmpty()) {
                                             val editedPlace = Place(
                                                 place.latitude,
                                                 place.longitude,
@@ -229,10 +232,9 @@ class MainActivity : ComponentActivity() {
                                             editedPlace.snippet = editedSnippet
                                             mapViewModel.updatePlace(place, editedPlace)
                                             mapViewModel.hideMarkerMenu()
-                                            // Hide the keyboard
-                                            focusManager.clearFocus()
-                                        }
-                                        else {
+                                            // Close the dialog
+                                            dialogState = DialogState.None
+                                        } else {
                                             Toast.makeText(
                                                 context,
                                                 errorTitleValidation,
@@ -248,13 +250,20 @@ class MainActivity : ComponentActivity() {
                 confirmButton = {
                     Button(
                         onClick = {
-                            if (title.length>=1) {
-                            val editedPlace = Place(place.latitude,place.longitude, editedTitle, editedSnippet,place.icon)
-                            editedPlace.title=editedTitle
-                            editedPlace.snippet=editedSnippet
-                            mapViewModel.updatePlace(place,editedPlace)
-                            // Close the dialog
-                            dialogState = DialogState.None
+                            if (title.isNotEmpty()) {
+                                val editedPlace = Place(
+                                    place.latitude,
+                                    place.longitude,
+                                    editedTitle,
+                                    editedSnippet,
+                                    place.icon
+                                )
+                                editedPlace.title = editedTitle
+                                editedPlace.snippet = editedSnippet
+                                mapViewModel.updatePlace(place, editedPlace)
+                                mapViewModel.hideMarkerMenu()
+                                // Close the dialog
+                                dialogState = DialogState.None
                             } else {
                                 Toast.makeText(
                                     context,
@@ -298,12 +307,12 @@ class MainActivity : ComponentActivity() {
                     Text(stringResource(id = R.string.add_place))
                 },
                 text = {
-                    LazyColumn(){
+                    LazyColumn() {
                         item {
                             // Defining a focusManager in the AlertDialog
-                            Text(text=stringResource(id = R.string.latitude)+" : "+latLng.latitude)
+                            Text(text = stringResource(id = R.string.latitude) + " : " + latLng.latitude)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(text=stringResource(id = R.string.longitude)+" : "+latLng.longitude)
+                            Text(text = stringResource(id = R.string.longitude) + " : " + latLng.longitude)
                             Spacer(modifier = Modifier.height(8.dp))
                             val focusManager = LocalFocusManager.current
                             TextField(
@@ -336,10 +345,16 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onDone = {
-                                        if (title.length>=1) {
-                                            val place = Place(latLng.latitude, latLng.longitude, title, snippet, BitmapDescriptorFactory.fromResource(R.drawable.custom_marker))
+                                        if (title.isNotEmpty()) {
+                                            val place = Place(
+                                                latLng.latitude,
+                                                latLng.longitude,
+                                                title,
+                                                snippet,
+                                                BitmapDescriptorFactory.fromResource(R.drawable.custom_marker)
+                                            )
                                             mapViewModel.addPlace(place)
-                                            mapViewModel.newMarker=null
+                                            mapViewModel.newMarker = null
                                             dialogState = DialogState.None
                                         } else {
                                             Toast.makeText(
@@ -357,10 +372,16 @@ class MainActivity : ComponentActivity() {
                 confirmButton = {
                     Button(
                         onClick = {
-                            if (title.length>=1) {
-                                val place = Place(latLng.latitude, latLng.longitude, title, snippet, BitmapDescriptorFactory.fromResource(R.drawable.custom_marker))
+                            if (title.isNotEmpty()) {
+                                val place = Place(
+                                    latLng.latitude,
+                                    latLng.longitude,
+                                    title,
+                                    snippet,
+                                    BitmapDescriptorFactory.fromResource(R.drawable.custom_marker)
+                                )
                                 mapViewModel.addPlace(place)
-                                mapViewModel.newMarker=null
+                                mapViewModel.newMarker = null
                                 dialogState = DialogState.None
                             } else {
                                 Toast.makeText(
@@ -369,7 +390,7 @@ class MainActivity : ComponentActivity() {
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            mapViewModel.newMarker=null
+                            mapViewModel.newMarker = null
                         }
                     ) {
                         Text(stringResource(id = R.string.add_place))
@@ -380,7 +401,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             // Close the dialog
                             dialogState = DialogState.None
-                            mapViewModel.newMarker=null
+                            mapViewModel.newMarker = null
                         }
                     ) {
                         Text(stringResource(id = R.string.cancel))
@@ -391,15 +412,14 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
     class MapParameters {
         companion object {
-            val UPDATE_INTERVAL: Long = 10000 /* 10 segons */
-            val FASTEST_INTERVAL: Long = 5000 /* 5 segons */
-            val DEFAULT_LAT = 0.0
-            val DEFAULT_LONG = 0.0 //Ubicació per defecte
-            val MAP_ZOOM = 10f //ampliació de zoom al marcador (més gran, més zoom)
-            val MAP_LOCATION_ZOOM = 17f //ampliació de zoom al marcador ubicació
+            const val UPDATE_INTERVAL: Long = 10000 /* 10 segons */
+            const val FASTEST_INTERVAL: Long = 5000 /* 5 segons */
+            const val DEFAULT_LAT = 0.0
+            const val DEFAULT_LONG = 0.0 //Ubicació per defecte
+            const val MAP_ZOOM = 10f //ampliació de zoom al marcador (més gran, més zoom)
+            const val MAP_LOCATION_ZOOM = 17f //ampliació de zoom al marcador ubicació
         }
     }
 
