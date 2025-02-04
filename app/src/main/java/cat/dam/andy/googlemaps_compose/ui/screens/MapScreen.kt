@@ -16,15 +16,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LAT
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LONG
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.FASTEST_INTERVAL
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_ZOOM
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.UPDATE_INTERVAL
-import cat.dam.andy.googlemaps_compose.Place
+import cat.dam.andy.googlemaps_compose.model.Place
 import cat.dam.andy.googlemaps_compose.R
 import cat.dam.andy.googlemaps_compose.permissions.PermissionManager
 import cat.dam.andy.googlemaps_compose.permissions.Permissions
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LAT
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LONG
+import cat.dam.andy.googlemaps_compose.utils.Constants.FASTEST_INTERVAL
+import cat.dam.andy.googlemaps_compose.utils.Constants.MAP_ZOOM
+import cat.dam.andy.googlemaps_compose.utils.Constants.UPDATE_INTERVAL
 import cat.dam.andy.googlemaps_compose.viewmodel.MapViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -170,10 +170,10 @@ fun InitMap(context: Context, mapViewModel: MapViewModel, permissionManager: Per
 }
 
 fun getLatLng(myPosition: Location?): LatLng {
-    if (myPosition == null) {
-        return LatLng(DEFAULT_LAT, DEFAULT_LONG)
+    return if (myPosition == null) {
+        LatLng(DEFAULT_LAT, DEFAULT_LONG)
     } else {
-        return LatLng(myPosition.latitude, myPosition.longitude)
+        LatLng(myPosition.latitude, myPosition.longitude)
     }
 }
 

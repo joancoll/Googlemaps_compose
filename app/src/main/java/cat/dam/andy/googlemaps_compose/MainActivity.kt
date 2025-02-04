@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import cat.dam.andy.googlemaps_compose.model.Place
 import cat.dam.andy.googlemaps_compose.permissions.PermissionManager
 import cat.dam.andy.googlemaps_compose.permissions.Permissions
 import cat.dam.andy.googlemaps_compose.ui.screens.MapMenuMarkerScreen
@@ -73,7 +74,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     MainScreen(
                         context = this,
-                        mapViewModel = mapViewModel
+                        mapViewModel = mapViewModel,
+                        permissionManager = permissionManager
                     )
                 }
             }
@@ -82,7 +84,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun MainScreen(context: Context, mapViewModel: MapViewModel) {
+    fun MainScreen(context: Context, mapViewModel: MapViewModel, permissionManager: PermissionManager) {
         Scaffold(
             content = { innerPadding ->
                 // Contingut principal
@@ -412,19 +414,6 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-
-
-    class MapParameters {
-        companion object {
-            const val UPDATE_INTERVAL: Long = 10000 /* 10 segons */
-            const val FASTEST_INTERVAL: Long = 5000 /* 5 segons */
-            const val DEFAULT_LAT = 0.0
-            const val DEFAULT_LONG = 0.0 //Ubicació per defecte
-            const val MAP_ZOOM = 10f //ampliació de zoom al marcador (més gran, més zoom)
-            const val MAP_LOCATION_ZOOM = 17f //ampliació de zoom al marcador ubicació
-        }
-    }
-
 }
 
 

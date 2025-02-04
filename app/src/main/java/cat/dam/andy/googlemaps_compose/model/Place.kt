@@ -1,9 +1,9 @@
-package cat.dam.andy.googlemaps_compose
+package cat.dam.andy.googlemaps_compose.model
 
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LAT
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LONG
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LAT
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LONG
 
 class Place(
     var latitude: Double= DEFAULT_LAT,

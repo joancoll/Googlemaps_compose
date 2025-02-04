@@ -5,11 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LAT
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.DEFAULT_LONG
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_LOCATION_ZOOM
-import cat.dam.andy.googlemaps_compose.MainActivity.MapParameters.Companion.MAP_ZOOM
-import cat.dam.andy.googlemaps_compose.Place
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LAT
+import cat.dam.andy.googlemaps_compose.utils.Constants.DEFAULT_LONG
+import cat.dam.andy.googlemaps_compose.utils.Constants.MAP_LOCATION_ZOOM
+import cat.dam.andy.googlemaps_compose.utils.Constants.MAP_ZOOM
+import cat.dam.andy.googlemaps_compose.model.Place
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
@@ -70,26 +70,26 @@ class MapViewModel : ViewModel() {
     }
 
     fun getlastKnownLocationLatLng(): LatLng {
-        if (_lastKnownLocation == null) {
-            return LatLng(DEFAULT_LAT, DEFAULT_LONG)
+        return if (_lastKnownLocation == null) {
+            LatLng(DEFAULT_LAT, DEFAULT_LONG)
         } else {
-            return LatLng(_lastKnownLocation!!.latitude, _lastKnownLocation!!.longitude)
+            LatLng(_lastKnownLocation!!.latitude, _lastKnownLocation!!.longitude)
         }
     }
 
     fun getLatitude(): String {
-        if (_lastKnownLocation == null) {
-            return "-  -"
+        return if (_lastKnownLocation == null) {
+            "-  -"
         } else {
-            return String.format(Locale.getDefault(),"%.4f", _lastKnownLocation?.latitude)
+            String.format(Locale.getDefault(),"%.4f", _lastKnownLocation?.latitude)
         }
     }
 
     fun getLongitude(): String {
-        if (_lastKnownLocation == null) {
-            return "-  -"
+        return if (_lastKnownLocation == null) {
+            "-  -"
         } else {
-            return String.format(Locale.getDefault(), "%.4f", _lastKnownLocation?.longitude)
+            String.format(Locale.getDefault(), "%.4f", _lastKnownLocation?.longitude)
         }
     }
 

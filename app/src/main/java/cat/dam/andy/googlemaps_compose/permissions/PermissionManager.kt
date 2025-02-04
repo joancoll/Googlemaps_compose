@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestMultiple
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.core.content.ContextCompat
 import cat.dam.andy.googlemaps_compose.R
+import cat.dam.andy.googlemaps_compose.utils.Constants.SAVED_PERM_ALREADY_ASKED
 
 sealed class Permissions(vararg val permissions: String) {
     // Individual permissions
@@ -123,7 +124,6 @@ class PermissionManager(var activity: ComponentActivity) : ComponentActivity() {
     private val deniedList = arrayListOf<String>()
     private lateinit var permissionCheck: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPreferences: SharedPreferences
-    private val prefName = "permissions_pref"
 
     init {
         initializePermissionCheck()
@@ -138,7 +138,7 @@ class PermissionManager(var activity: ComponentActivity) : ComponentActivity() {
     }
 
     private fun initializeSharedPreferences() {
-        sharedPreferences = activity.getSharedPreferences(prefName, MODE_PRIVATE)
+        sharedPreferences = activity.getSharedPreferences(SAVED_PERM_ALREADY_ASKED, MODE_PRIVATE)
     }
 
 
@@ -264,7 +264,7 @@ class PermissionManager(var activity: ComponentActivity) : ComponentActivity() {
             .show()
     }
 
-    @SuppressLint("StringFormatInvalid")
+
     private fun displayPermanentlyDenied(
         activity: Context,
         deniedPermissions: String?
@@ -304,12 +304,10 @@ class PermissionManager(var activity: ComponentActivity) : ComponentActivity() {
 
     private fun sendResultAndCleanUp(grantResults: Map<String, Boolean>) {
         if (deniedList.isNotEmpty()) {
-            activity.let {
-                displayPermanentlyDenied(
-                    it,
-                    getCommaSeparatedFormattedString(deniedList)
-                )
-            }
+            displayPermanentlyDenied(
+                activity,
+                getCommaSeparatedFormattedString(deniedList)
+            )
         } else {
             callback(grantResults.all { it.value })
             detailedCallback(grantResults)
@@ -376,10 +374,10 @@ class PermissionManager(var activity: ComponentActivity) : ComponentActivity() {
             } else {
                 //en versions anteriors només és de forma permanent quan s'ha demanat mínim una vegada
                 // i no requereix diàleg raonat
-                if (getAlreadyAskedForPermission(permission)) {
-                    return !requiresRationale(activity, permission)
+                return if (getAlreadyAskedForPermission(permission)) {
+                    !requiresRationale(activity, permission)
                 } else {
-                    return false
+                    false
                 }
             }
         } else {
